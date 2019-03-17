@@ -1,0 +1,154 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+rule MembersCanViewALLData {
+     description: "Consentire a tutti i partecipanti l'accesso a tutte le risorse"
+     participant(m): "org.auction.User"
+     operation: READ
+     resource(v): "org.auction.*"
+     condition: (v.getIdentifier() == m.getIdentifier())
+     action: ALLOW
+ }
+
+ rule SellerCanViewMemberData {
+     description: "Consentire a tutti i partecipanti l'accesso a tutte le risorse"
+     participant: "org.auction.Venditore"
+     operation: READ
+     resource: "org.auction.Member"
+     action: ALLOW
+ }
+
+ rule SellerCanUpdateData {
+     description: "Consentire ai venditori l'accesso a tutte le risorse"
+     participant(m): "org.auction.Venditore"
+     operation: ALL
+     resource(v): "org.auction.Venditore"
+     condition: (v.getIdentifier() == m.getIdentifier())
+     action: ALLOW
+ }
+
+rule ProductView {
+    description: "Consentire a User l'accesso ai propri prodotti"
+    participant: "org.auction.User"
+    operation: READ
+    resource: "org.auction.Prodotto"
+    action: ALLOW
+}
+
+rule ProductAccess {
+    description: "Consentire a User l'accesso ai propri prodotti"
+    participant(m): "org.auction.User"
+    operation: ALL
+    resource(v): "org.auction.Prodotto"
+    condition: (v.owner.getIdentifier() == m.getIdentifier())
+    action: ALLOW
+}
+
+rule ProductListingView {
+    description: "Consentire ai proprietari dei prodotti l'accesso alla lista prodotti"
+    participant: "org.auction.User"
+    operation: READ
+    resource: "org.auction.ListaProdotti"
+    action: ALLOW
+}
+
+rule ProductListingOwner {
+    description: "Consentire ai proprietari dei prodotti l'accesso alla lista prodotti"
+    participant(m): "org.auction.User"
+    operation: ALL
+    resource(v): "org.auction.ListaProdotti"
+    condition: (v.prodotto.owner.getIdentifier() == m.getIdentifier())
+    action: ALLOW
+}
+
+rule AddProduct{
+    description: "Abilita ai seller l'aggiunta di nuovi prodotti"
+    participant(m): "org.auction.Venditore"
+    operation: CREATE
+    resource(v): "org.auction.AddProdotto"
+    condition: (v.owner.getIdentifier() == m.getIdentifier())
+    action: ALLOW
+}
+
+rule MakeOffer{
+      description: "Consentire ai membri di fare offerte per il prodotto"
+      participant(m): "org.auction.User"
+      operation: CREATE
+      resource(v): "org.auction.Offerta"
+      condition: (v.member.getIdentifier() == m.getIdentifier())
+      action: ALLOW
+}
+
+rule MembersCanUpdateProductListing {
+    description: "Consentire ai membri di aggiornare l'offerta sulla lista"
+    participant: "org.auction.User"
+    operation: UPDATE
+    resource: "org.auction.ListaProdotti"
+    action: ALLOW
+}
+
+rule StartBiddingProcessTransaction {
+     description: "Abilita i proprietari di iniziare l'offerta"
+     participant(m): "org.auction.User"
+     operation: CREATE
+     resource(v): "org.auction.InizioOfferta"
+     condition: (v.prodotto.owner.getIdentifier() == m.getIdentifier())
+     action: ALLOW
+ }
+
+ rule CloseBiddingProcessTransaction {
+     description: "Abilita i proprietari di chiudere l'offerta"
+     participant(m): "org.auction.User"
+     operation: CREATE
+     resource(v): "org.auction.ChiudiOfferta"
+     condition: (v.lista.prodotto.owner.getIdentifier() == m.getIdentifier())
+     action: ALLOW
+ }
+
+rule CloseBiddingProcessTransactionUpdate {
+      description: "Consenti ai membri di fare offerte per il prodotto"
+      participant(m): "org.auction.User"
+      operation: UPDATE
+      resource(v): "org.auction.User"
+      transaction(tx): "org.auction.ChiudiOfferta"
+      condition: (tx.lista.prodotto.owner.getIdentifier() == m.getIdentifier())
+      action: ALLOW
+}
+
+rule SystemACL {
+  description:  "System ACL to permit all access"
+  participant: "org.hyperledger.composer.system.Participant"
+  operation: ALL
+  resource: "org.hyperledger.composer.system.**"
+  action: ALLOW
+}
+
+rule NetworkAdminUser {
+    description: "Grant business network administrators full access to user resources"
+    participant: "org.hyperledger.composer.system.NetworkAdmin"
+    operation: ALL
+    resource: "**"
+    action: ALLOW
+}
+
+
+rule NetworkAdminSystem {
+    description: "Grant business network administrators full access to system resources"
+    participant: "org.hyperledger.composer.system.NetworkAdmin"
+    operation: ALL
+    resource: "org.hyperledger.composer.system.**"
+    action: ALLOW
+}
+

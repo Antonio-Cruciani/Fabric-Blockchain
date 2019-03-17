@@ -1,0 +1,96 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+namespace org.auction
+
+enum Stato {
+  o IN_VENDITA
+  o IN_ATTESA
+  o VENDUTO
+}
+
+asset Prodotto identified by id_prodotto {
+  o String id_prodotto
+  o String descrizione
+  --> User owner
+}
+
+asset ListaProdotti identified by id_lista {
+  o String id_lista
+  o Double prezzo_base
+  o Stato stato
+  o Offerta[] offerta optional
+  --> Prodotto prodotto
+}
+
+abstract participant User identified by id_user {
+  o String id_user
+  o Double capitale
+  o Prodotto[] prodotti
+}
+
+/**
+ * Partecipant di tipo Venditore
+ */
+participant Venditore extends User {
+  o String organizzazione
+}
+
+/**
+ * Partecipant di tipo Member
+ */
+participant Member extends User {
+  o String nome
+  o String cognome
+}
+
+/**
+ * TRANSAZIONI SULLA RETE
+ */
+
+transaction Offerta {
+  o Double prezzo_offerta
+  --> ListaProdotti lista
+  --> Member member
+}
+
+transaction ChiudiOfferta {
+  --> ListaProdotti lista
+}
+
+transaction InizioOfferta{
+  o Double prezzo_base
+  --> Prodotto prodotto
+}
+
+transaction AddProdotto{
+  o String descrizione
+  --> Venditore owner
+}
+/**
+ * Evento da passare al server JS per la visualizzazione 
+ */
+
+
+event TradeEvent {
+  o String type
+  o String ownerId
+  o String id
+  o String descrizione
+  o String stato
+  o Double ammontare
+  o String buyerId
+}
+
+

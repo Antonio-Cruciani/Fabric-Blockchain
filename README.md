@@ -1,7 +1,7 @@
 # Fabric-Blockchain
 Blockchain developed in Hyperledger.
 
-Blackchain for an auction
+Blockchain for an auction
 
 
 
